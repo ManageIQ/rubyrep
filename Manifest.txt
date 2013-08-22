@@ -30,6 +30,7 @@ lib/rubyrep/log_helper.rb
 lib/rubyrep/logged_change.rb
 lib/rubyrep/logged_change_loader.rb
 lib/rubyrep/noisy_connection.rb
+lib/rubyrep/prepare_replication_runner.rb
 lib/rubyrep/proxied_table_scan.rb
 lib/rubyrep/proxy_block_cursor.rb
 lib/rubyrep/proxy_connection.rb
@@ -44,6 +45,7 @@ lib/rubyrep/replication_helper.rb
 lib/rubyrep/replication_initializer.rb
 lib/rubyrep/replication_run.rb
 lib/rubyrep/replication_runner.rb
+lib/rubyrep/replicators/one_way_replicator.rb
 lib/rubyrep/replicators/replicators.rb
 lib/rubyrep/replicators/two_way_replicator.rb
 lib/rubyrep/scan_progress_printers/progress_bar.rb
@@ -55,6 +57,7 @@ lib/rubyrep/scan_runner.rb
 lib/rubyrep/session.rb
 lib/rubyrep/sync_helper.rb
 lib/rubyrep/sync_runner.rb
+lib/rubyrep/syncers/one_way_syncer.rb
 lib/rubyrep/syncers/syncers.rb
 lib/rubyrep/syncers/two_way_syncer.rb
 lib/rubyrep/table_scan.rb
@@ -66,6 +69,7 @@ lib/rubyrep/task_sweeper.rb
 lib/rubyrep/trigger_mode_switcher.rb
 lib/rubyrep/type_casting_cursor.rb
 lib/rubyrep/uninstall_runner.rb
+lib/rubyrep/uninstall_tables_runner.rb
 lib/rubyrep/version.rb
 rubyrep
 rubyrep.bat
@@ -149,3 +153,7 @@ tasks/rubyrep.tailor
 tasks/stats.rake
 tasks/task_helper.rb
 tasks/website.rake
+website/index.txt
+website/javascripts/rounded_corners_lite.inc.js
+website/stylesheets/screen.css
+website/template.rhtml

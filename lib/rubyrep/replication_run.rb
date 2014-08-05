@@ -23,8 +23,7 @@ module RR
 
     # Returns the current replicator; creates it if necessary.
     def replicator
-      @replicator ||=
-        Replicators.replicators[session.configuration.options[:replicator]].new(helper)
+      @replicator ||= Replicators.replicators[session.configuration.options[:replicator]].new(helper)
     end
 
     # Returns the current LoggedChangeLoaders; creates it if necessary
@@ -65,18 +64,6 @@ module RR
     def run
       $stdout.write "-" if session.configuration.options[:replication_trace]
 
-      return unless [:left, :right].any? do |database|
-        next false if session.configuration.send(database)[:mode] == :slave
-        changes_pending = false
-        t = Thread.new do
-          changes_pending = session.send(database).select_one(
-            "select id from #{session.configuration.options[:rep_prefix]}_pending_changes limit 1"
-          ) != nil
-        end
-        t.join session.configuration.options[:database_connection_timeout]
-        changes_pending
-      end
-
       # Apparently sometimes above check for changes takes already so long, that
       # the replication run times out.
       # Check for this and if timed out, return (silently).
@@ -97,7 +84,7 @@ module RR
               break unless diff.loaded?
               break_on_terminate = sweeper.terminated? || $rubyrep_shutdown
               break if break_on_terminate
-              if diff.type != :no_diff and not event_filtered?(diff)
+              if diff.type != :no_diff and not event_filtered?(diff)  # Should probably be :no_change, :no_diff doesn't exist
                 replicator.replicate_difference diff
               end
             rescue Exception => e
@@ -112,8 +99,7 @@ module RR
                 second_chancers << diff
               else
                 begin
-                  helper.log_replication_outcome diff, e.message,
-                    e.class.to_s + "\n" + e.backtrace.join("\n")
+                  helper.log_replication_outcome diff, e.message, e.class.to_s + "\n" + e.backtrace.join("\n")
                 rescue Exception => _
                   # if logging to database itself fails, re-raise the original exception
                   raise e

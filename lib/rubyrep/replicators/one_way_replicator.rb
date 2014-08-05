@@ -261,16 +261,7 @@ module RR
       # * +diff+: the current ReplicationDifference instance
       # * +remaining_attempts+: the number of remaining replication attempts for this difference
       def attempt_change(action, source_db, target_db, diff, remaining_attempts)
-        begin
-          rep_helper.session.send(target_db).execute "savepoint rr_#{action}_#{remaining_attempts}"
-          yield
-          unless rep_helper.new_transaction?
-            rep_helper.session.send(target_db).execute "release savepoint rr_#{action}_#{remaining_attempts}"
-          end
-        rescue Exception => e
-          rep_helper.session.send(target_db).execute "rollback to savepoint rr_#{action}_#{remaining_attempts}"
-          raise
-        end
+        yield
       end
 
       # Attempts to delete the source record from the target database.

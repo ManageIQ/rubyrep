@@ -382,6 +382,7 @@ module RR
     # +values+ is a hash of column_name => value pairs.
     def insert_record(table, values)
       execute table_insert_query(table, values)
+    rescue ActiveRecord::RecordNotUnique => err
     end
     
     # Returns an SQL update query.

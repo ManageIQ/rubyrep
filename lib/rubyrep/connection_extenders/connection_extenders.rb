@@ -39,10 +39,6 @@ module RR
       @extenders.merge! extender
     end
 
-    # Dummy ActiveRecord descendant only used to create database connections.
-    class DummyActiveRecord < ActiveRecord::Base
-    end
-    
     # Creates an ActiveRecord database connection according to the provided +config+ connection hash.
     # Possible values of this parameter are described in ActiveRecord::Base#establish_connection.
     # The database connection is extended with the correct ConnectionExtenders module.
@@ -52,21 +48,14 @@ module RR
     # To go around this, we delete ActiveRecord's memory of the existing database connection
     # as soon as it is created.
     def self.db_connect_without_cache(config)
+      adapter = config[:adapter]
       if RUBY_PLATFORM =~ /java/
-        adapter = config[:adapter]
-        
         # As recommended in the activerecord-jdbc-adapter use the jdbc versions
         # of the Adapters. E. g. instead of "postgresql", "jdbcpostgresql".
         adapter = 'jdbc' + adapter unless adapter =~ /^jdbc/
-
-        DummyActiveRecord.establish_connection(config.merge(:adapter => adapter))
-      else
-        DummyActiveRecord.establish_connection(config)
       end
-      connection = DummyActiveRecord.connection
       
-      # Delete the database connection from ActiveRecords's 'memory'
-      ActiveRecord::Base.connection_handler.connection_pools.delete DummyActiveRecord.name
+      connection = ActiveRecord::Base.send("#{adapter}_connection", config)
       
       extender = ""
       if RUBY_PLATFORM =~ /java/

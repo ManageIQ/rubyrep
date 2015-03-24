@@ -65,7 +65,7 @@ module RR
           end
         end
 
-        self.rows = connection.select_all query
+        self.rows = connection.select_all(query).to_hash
         self.current_row_index = 0
       end
       self.current_row_index < self.rows.size
@@ -110,8 +110,7 @@ module RR
       :columns, :quote_column_name,
       :quote_table_name, :execute,
       :select_one, :select_all, :tables, :update, :delete,
-      :begin_db_transaction, :rollback_db_transaction, :commit_db_transaction,
-      :transaction, :decrement_open_transactions, :increment_open_transactions,
+      :transaction, :transaction_manager,
       :referenced_tables,
       :create_or_replace_replication_trigger_function,
       :create_replication_trigger, :drop_replication_trigger, :replication_trigger_exists?,

@@ -42,8 +42,8 @@ module RR
         :row_buffer_size => scan_options[:row_buffer_size],
         :type_cast => true,
         :conditions => filter_conditions,
-        :from => session.left.primary_key_names(left_table).inject({}) { |h, k| h[k] = ActiveRecord::Base.rails_sequence_start; h },
-        :to => session.left.primary_key_names(left_table).inject({}) { |h, k| h[k] = ActiveRecord::Base.rails_sequence_end; h }
+        :from => session.left.primary_key_names(left_table).inject({}) { |h, k| h[k] = scan_options[:id_range].min; h },
+        :to => session.left.primary_key_names(left_table).inject({}) { |h, k| h[k] = scan_options[:id_range].max; h }
       )
 
       event_filter = session.configuration.options_for_table(right_table)[:event_filter]
@@ -55,8 +55,8 @@ module RR
         :row_buffer_size => scan_options[:row_buffer_size],
         :type_cast => true,
         :conditions => filter_conditions,
-        :from => session.left.primary_key_names(right_table).inject({}) { |h, k| h[k] = ActiveRecord::Base.rails_sequence_start; h },
-        :to => session.left.primary_key_names(right_table).inject({}) { |h, k| h[k] = ActiveRecord::Base.rails_sequence_end; h }
+        :from => session.left.primary_key_names(right_table).inject({}) { |h, k| h[k] = scan_options[:id_range].min; h },
+        :to => session.left.primary_key_names(right_table).inject({}) { |h, k| h[k] = scan_options[:id_range].max; h }
       )
 
       left_row = right_row = nil

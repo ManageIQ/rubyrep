@@ -318,6 +318,21 @@ module RR
     end
     private :row_condition
 
+    def self.expand_conditional_clause(cond, relation_name)
+      cond = cond.stringify_keys
+
+      klass = Class.new(ActiveRecord::Base) { self.table_name = relation_name; singleton_class.send(:define_method, :load_schema) { } }
+
+      return klass.send(:sanitize_sql_for_conditions, cond) unless cond.is_a?(Hash)
+
+      cond = klass.predicate_builder.resolve_column_aliases(cond)
+      cond = klass.send(:expand_hash_conditions_for_aggregates, cond)
+
+      klass.predicate_builder.build_from_hash(cond).map { |b|
+        klass.connection.visitor.compile b
+      }.join(' AND ')
+    end
+
     # Returns an SQL query string for the given +table+ based on the provided +options+.
     # +options+ is a hash that can contain any of the following:
     #   * :+from+: nil OR the hash of primary key => value pairs designating the start of the selection
@@ -358,7 +373,7 @@ module RR
         end
       end
       if options[:conditions]
-        query << ' and (not (' << Class.new(ActiveRecord::Base).send(:sanitize_sql_for_conditions, options[:conditions], quote_table_name(table)) << '))'
+        query << ' and (not (' << ProxyConnection.expand_conditional_clause(options[:conditions], table) << '))'
       end
       query << " order by #{quote_key_list(table)}"
 

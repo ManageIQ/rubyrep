@@ -24,7 +24,7 @@ module RR
     # Reads the next row from the original cursor and returns the row with the type casted row values.
     def next_row
       row = org_cursor.next_row
-      row.each {|column, value| row[column] = columns[column].type_cast_from_database value}
+      row.each {|column, value| row[column] = value}
       row
     end    
   end

@@ -15,6 +15,11 @@ module RR
       end
       private :key_clause
 
+      TABLE_PLACEHOLDER = "'table'placeholder'"
+      def expand_conditional_clause(cond, relation_name)
+        RR::ProxyConnection.expand_conditional_clause(cond, TABLE_PLACEHOLDER).gsub(TABLE_PLACEHOLDER, relation_name)
+      end
+
       # Returns the filter clause that is used to filter rows from the trigger.
       # * +conditions+: ActiveRecord style conditions, optionally preceded by the keys
       #   :new or :old, to describe on which side to apply the conditions.
@@ -23,7 +28,7 @@ module RR
         if conditions.kind_of?(Hash) && (conditions.has_key?(:new) || conditions.has_key?(:old))
           clause = conditions.map do |trigger_var, c|
             t = trigger_var.to_s.upcase
-            Class.new(ActiveRecord::Base).send(:sanitize_sql_for_conditions, c, t).gsub(/^"#{t}"/, t)
+            expand_conditional_clause(c, t)
           end.join(" AND ")
         else
           clause = conditions

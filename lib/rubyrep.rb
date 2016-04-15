@@ -75,4 +75,22 @@ module RR
     require 'fileutils'
     FileUtils.touch(file) unless file.nil?
   end
+
+  # Run the block for +t+ seconds, and raise an exception if it doesn't
+  # complete in time.
+  #
+  # Unlike stdlib timeout, this avoids cross-thread raises. But unlike a
+  # raw Thread.new { .. }.join(t), it also avoids leaving unattended
+  # threads running in the background, by killing them upon timeout.
+  def self.limited_execute(t)
+    thread = Thread.new { yield }
+    value = thread.join(t)
+
+    if thread.status
+      thread.kill
+      raise "Execution timed out (exceeded #{t}s)"
+    else
+      value
+    end
+  end
 end

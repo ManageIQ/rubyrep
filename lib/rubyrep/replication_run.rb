@@ -69,12 +69,11 @@ module RR
       return unless [:left, :right].any? do |database|
         next false if session.configuration.send(database)[:mode] == :slave
         changes_pending = false
-        t = Thread.new do
+        RR.limited_execute(session.configuration.options[:database_connection_timeout]) do
           changes_pending = session.send(database).select_one(
             "select id from #{session.configuration.options[:rep_prefix]}_pending_changes limit 1"
           ) != nil
         end
-        t.join session.configuration.options[:database_connection_timeout]
         changes_pending
       end
 

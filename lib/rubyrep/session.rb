@@ -123,13 +123,13 @@ module RR
     # * +database+: target database (either +:left+ or :+right+)
     def database_unreachable?(database)
       unreachable = true
-      Thread.new do
+      RR.limited_execute(configuration.options[:database_connection_timeout]) do
         begin
           if send(database) && send(database).select_one("select 1+1 as x")['x'].to_i == 2
             unreachable = false # database is actually reachable
           end
         end rescue nil
-      end.join configuration.options[:database_connection_timeout]
+      end
       unreachable
     end
 
@@ -167,21 +167,21 @@ module RR
       if options[:forced] or database_unreachable?(database)
         # step 1: disconnect both database connection (if still possible)
         begin
-          Thread.new do
+          RR.limited_execute(configuration.options[:database_connection_timeout]) do
             disconnect_database database rescue nil
-          end.join configuration.options[:database_connection_timeout]
+          end.join 
         end
 
         connect_exception = nil
         # step 2: try to reconnect the database
-        Thread.new do
+        RR.limited_execute(configuration.options[:database_connection_timeout]) do
           begin
             connect_database database
           rescue Exception => e
             # save exception so it can be rethrown outside of the thread
             connect_exception = e
           end
-        end.join configuration.options[:database_connection_timeout]
+        end
         raise connect_exception if connect_exception
 
         # step 3: verify if database connections actually work (to detect silent connection failures)

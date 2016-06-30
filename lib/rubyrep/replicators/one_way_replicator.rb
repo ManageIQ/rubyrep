@@ -261,7 +261,7 @@ module RR
       # * +diff+: the current ReplicationDifference instance
       # * +remaining_attempts+: the number of remaining replication attempts for this difference
       def attempt_change(action, source_db, target_db, diff, remaining_attempts)
-        rep_helper.session.send(target_db).transaction { yield }
+        rep_helper.session.send(target_db).transaction(:requires_new => true) { yield }
         rep_helper.commit
       end
 

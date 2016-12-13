@@ -17,7 +17,7 @@ module RR
 
       TABLE_PLACEHOLDER = "'table'placeholder'"
       def expand_conditional_clause(cond, relation_name)
-        RR::ProxyConnection.expand_conditional_clause(cond, TABLE_PLACEHOLDER).gsub(TABLE_PLACEHOLDER, relation_name)
+        RR::ProxyConnection.expand_conditional_clause(cond, TABLE_PLACEHOLDER).gsub("\"#{TABLE_PLACEHOLDER}\"", relation_name)
       end
 
       # Returns the filter clause that is used to filter rows from the trigger.
